@@ -1,5 +1,3 @@
-// ==== Set this to your deployed backend URL (Render/Railway), e.g.:
-// const BACKEND_URL = "https://job-radar-api.onrender.com";
 const BACKEND_URL = "https://telegram-job-tracker-zgbq.onrender.com";
 
 const feedEl = document.getElementById("feed");
@@ -23,32 +21,38 @@ function timeAgo(iso) {
 function renderJobs(jobs) {
   feedEl.innerHTML = "";
   if (!jobs.length) {
-    feedEl.innerHTML = `<li class="empty">Nothing here yet — the radar is still sweeping.</li>`;
+    feedEl.innerHTML = `<li class="empty">No dispatches yet — the wire is quiet.</li>`;
     return;
   }
-  for (const job of jobs) {
+  const total = jobs.length;
+  jobs.forEach((job, i) => {
+    const dispatchNo = String(total - i).padStart(3, "0");
+    const mins = Math.floor((Date.now() - new Date(job.posted_at).getTime()) / 60000);
+    const isNew = mins < 15;
+
     const li = document.createElement("li");
     li.className = "job";
     li.innerHTML = `
-      <div class="job-meta">
-        <span class="channel">${job.channel}</span>
-        <span>${timeAgo(job.posted_at)}</span>
+      <div class="job-head">
+        <span class="wire-no">NO. ${dispatchNo}</span>
+        <span>${timeAgo(job.posted_at)}${isNew ? '<span class="new-tag">NEW</span>' : ""}</span>
       </div>
+      <div class="job-meta">SOURCE: ${job.channel}</div>
       <div class="job-text"></div>
-      ${job.link ? `<a class="job-link" href="${job.link}" target="_blank" rel="noopener">Open in Telegram →</a>` : ""}
+      ${job.link ? `<a class="job-link" href="${job.link}" target="_blank" rel="noopener">OPEN IN TELEGRAM &rarr;</a>` : ""}
     `;
     li.querySelector(".job-text").textContent = job.text; // safe text insert
     feedEl.appendChild(li);
-  }
+  });
 }
 
 async function loadJobs(q = "") {
   try {
-    statusEl.textContent = "Sweeping…";
+    statusEl.textContent = "Reading the wire…";
     const res = await fetch(`${BACKEND_URL}/jobs?q=${encodeURIComponent(q)}`);
     const jobs = await res.json();
     renderJobs(jobs);
-    statusEl.textContent = `${jobs.length} match${jobs.length === 1 ? "" : "es"} · last checked ${new Date().toLocaleTimeString()}`;
+    statusEl.textContent = `${jobs.length} dispatch${jobs.length === 1 ? "" : "es"} on file · last checked ${new Date().toLocaleTimeString()}`;
   } catch (err) {
     statusEl.textContent = "Couldn't reach the backend — check BACKEND_URL in app.js.";
     console.error(err);
@@ -58,14 +62,11 @@ async function loadJobs(q = "") {
 searchEl.addEventListener("input", () => {
   clearTimeout(debounceTimer);
   currentQuery = searchEl.value.trim();
-  debounceTimer = setTimeout(() => loadJobs(currentQuery), 300);
+  debounceTimer = setTimeout(() => loadJobs(currentQuery), 400);
 });
 
-// Poll for new posts every 30s so the feed stays live even without opening a notification
 setInterval(() => loadJobs(currentQuery), 30000);
 loadJobs();
-
-// ---- Push notifications ----
 
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -99,7 +100,7 @@ async function enableNotifications() {
     body: JSON.stringify({ push_subscription: subscription.toJSON(), keywords }),
   });
 
-  notifyBtn.textContent = "Alerts on";
+  notifyBtn.textContent = "Subscribed";
   notifyBtn.disabled = true;
 }
 
