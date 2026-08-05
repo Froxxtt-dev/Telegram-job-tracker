@@ -17,6 +17,7 @@ import os
 import json
 import asyncio
 import logging
+import requests
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request
@@ -46,6 +47,9 @@ VAPID_PUBLIC_KEY = os.environ["VAPID_PUBLIC_KEY"]
 VAPID_PRIVATE_KEY = os.environ["VAPID_PRIVATE_KEY"]
 VAPID_CLAIMS_EMAIL = os.environ.get("VAPID_CLAIMS_EMAIL", "mailto:you@example.com")
 
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")  # optional — search/tagging degrade to plain-text if unset
+GROQ_MODEL = "llama-3.3-70b-versatile"
+
 # The three channels. Public ones use their @username. The unlisted one
 # is handled by CHANNEL_INVITE_LINK below (see README for how this
 # resolves whichever link form Telegram gave you).
@@ -62,6 +66,62 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# ---------- Groq (free-tier LLM) — job tagging + query expansion ----------
+
+def _groq_json(prompt: str) -> dict:
+    """Calls Groq's chat endpoint and parses a JSON object from the reply.
+    Returns {} on any failure so callers can fall back to plain-text behavior."""
+    if not GROQ_API_KEY:
+        return {}
+    try:
+        resp = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
+            json={
+                "model": GROQ_MODEL,
+                "messages": [
+                    {"role": "system", "content": "Respond with ONLY a JSON object, no other text."},
+                    {"role": "user", "content": prompt},
+                ],
+                "temperature": 0.2,
+                "max_tokens": 200,
+            },
+            timeout=10,
+        )
+        content = resp.json()["choices"][0]["message"]["content"]
+        content = content.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+        return json.loads(content)
+    except Exception as e:
+        log.warning("Groq call failed, falling back to plain text: %s", e)
+        return {}
+
+
+def tag_job(text: str) -> list[str]:
+    """Extracts a short list of role/category keywords for a job post so
+    related searches (e.g. 'accounting' matching a 'bookkeeper' post) work."""
+    result = _groq_json(
+        "Read this job posting and return JSON like "
+        '{"tags": ["role or field keywords, 3-6 short lowercase terms"]}. '
+        "Include the job title, its general field, and seniority if stated.\n\n"
+        f"POSTING:\n{text[:1500]}"
+    )
+    tags = result.get("tags", [])
+    return [t.lower() for t in tags if isinstance(t, str)]
+
+
+def expand_query(query: str) -> list[str]:
+    """Expands a search term into related role/keyword variants so search
+    understands meaning, not just literal substrings."""
+    result = _groq_json(
+        "A user is searching a job board for this role or keyword: "
+        f'"{query}". Return JSON like {{"terms": ["5-8 closely related lowercase '
+        'job-search terms, including the original word and common synonyms/titles"]}}.'
+    )
+    terms = result.get("terms", [])
+    terms = [t.lower() for t in terms if isinstance(t, str)]
+    return terms or [query.lower()]
 
 
 # ---------- Telegram side ----------
@@ -110,6 +170,7 @@ def store_job(channel_name: str, text: str, posted_at: datetime, link: str | Non
         "text": text,
         "posted_at": posted_at.isoformat(),
         "link": link,
+        "tags": tag_job(text),
     }
     supabase.table("jobs").insert(row).execute()
     return row
@@ -179,11 +240,16 @@ def vapid_public_key():
 
 @app.get("/jobs")
 def search_jobs(q: str = ""):
-    query = supabase.table("jobs").select("*").order("posted_at", desc=True).limit(100)
+    query = supabase.table("jobs").select("*").order("posted_at", desc=True).limit(200)
     data = query.execute().data
     if q:
-        q_lower = q.lower()
-        data = [j for j in data if q_lower in j["text"].lower()]
+        terms = expand_query(q)  # e.g. "accounting" -> accounting, bookkeeping, finance, accountant...
+
+        def matches(job):
+            haystack = job["text"].lower() + " " + " ".join(job.get("tags") or [])
+            return any(term in haystack for term in terms)
+
+        data = [j for j in data if matches(j)]
     return data
 
 
