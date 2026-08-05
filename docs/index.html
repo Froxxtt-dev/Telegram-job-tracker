@@ -3,38 +3,40 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Job Radar</title>
+<title>Job Radar — Wire</title>
 <link rel="manifest" href="manifest.json" />
-<meta name="theme-color" content="#0B1220" />
+<meta name="theme-color" content="#16130F" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div class="scanline"></div>
-
-<header class="top">
-  <div class="brand">
-    <span class="dot pulsing"></span>
-    <h1>Job Radar</h1>
-  </div>
-  <p class="tagline">Sweeping careeropportunitiesinghana, job_linkk &amp; one more, live.</p>
+<header class="masthead">
+  <p class="eyebrow">EST. TODAY &middot; UNATTENDED WIRE OPERATOR</p>
+  <h1>JOB RADAR</h1>
+  <div class="rule rule-thick"></div>
+  <div class="rule rule-thin"></div>
+  <p class="status-line">
+    <span class="morse"></span>
+    MONITORING 3 CHANNELS &mdash; LIVE
+  </p>
 </header>
 
 <main>
   <section class="controls">
-    <input id="search" type="text" placeholder="Search a role — e.g. 'accounting', 'remote', 'data analyst'" autocomplete="off" />
-    <button id="notify-btn">Enable alerts</button>
+    <input id="search" type="text" placeholder="wire a search — e.g. 'accounting', 'remote', 'sales'" autocomplete="off" />
+    <button id="notify-btn">Subscribe to wire</button>
   </section>
 
   <p id="status" class="status"></p>
 
-  <ul id="feed" class="feed"></ul>
+  <ol id="feed" class="feed"></ol>
 </main>
 
 <footer>
-  <p>Job Radar — built to keep watch so you don't have to.</p>
+  <div class="rule rule-thin"></div>
+  <p>Job Radar — an unattended operator, listening so you don't have to.</p>
 </footer>
 
 <script src="app.js"></script>
