@@ -1,0 +1,6 @@
+Ffastapi
+uvicorn[standard]
+telethon
+supabase
+pywebpush
+python-dotenv

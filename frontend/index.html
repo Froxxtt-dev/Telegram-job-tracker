@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Job Radar</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#0B1220" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="scanline"></div>
+
+<header class="top">
+  <div class="brand">
+    <span class="dot pulsing"></span>
+    <h1>Job Radar</h1>
+  </div>
+  <p class="tagline">Sweeping careeropportunitiesinghana, job_linkk &amp; one more, live.</p>
+</header>
+
+<main>
+  <section class="controls">
+    <input id="search" type="text" placeholder="Search a role — e.g. 'accounting', 'remote', 'data analyst'" autocomplete="off" />
+    <button id="notify-btn">Enable alerts</button>
+  </section>
+
+  <p id="status" class="status"></p>
+
+  <ul id="feed" class="feed"></ul>
+</main>
+
+<footer>
+  <p>Job Radar — built to keep watch so you don't have to.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
