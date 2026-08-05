@@ -1,6 +1,6 @@
 // ==== Set this to your deployed backend URL (Render/Railway), e.g.:
 // const BACKEND_URL = "https://job-radar-api.onrender.com";
-const BACKEND_URL = "https://YOUR-BACKEND-URL-HERE";
+const BACKEND_URL = "https://telegram-job-tracker-zgbq.onrender.com";
 
 const feedEl = document.getElementById("feed");
 const statusEl = document.getElementById("status");
