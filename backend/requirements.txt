@@ -1,4 +1,4 @@
-Ffastapi
+fastapi
 uvicorn[standard]
 telethon
 supabase
