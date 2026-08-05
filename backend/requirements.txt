@@ -4,3 +4,4 @@ telethon
 supabase
 pywebpush
 python-dotenv
+requests
