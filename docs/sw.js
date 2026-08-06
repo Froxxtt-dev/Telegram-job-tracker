@@ -1,4 +1,4 @@
-const CACHE = "job-radar-v1";
+const CACHE = "job-radar-v2"; // bumped so this update forces a clean cache
 const CORE_ASSETS = ["./index.html", "./style.css", "./app.js", "./manifest.json"];
 
 self.addEventListener("install", (event) => {
@@ -7,16 +7,27 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(clients.claim());
-});
-
-self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
+  event.waitUntil(
+    caches.keys().then((names) =>
+      Promise.all(names.filter((n) => n !== CACHE).map((n) => caches.delete(n)))
+    ).then(() => clients.claim())
   );
 });
 
-// Incoming push from the backend
+// Network-first: always try to get the latest version when online,
+// only fall back to the cached copy if there's no connection.
+self.addEventListener("fetch", (event) => {
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+        return response;
+      })
+      .catch(() => caches.match(event.request))
+  );
+});
+
 self.addEventListener("push", (event) => {
   const payload = event.data ? event.data.json() : { title: "New job posted", body: "" };
   event.waitUntil(
