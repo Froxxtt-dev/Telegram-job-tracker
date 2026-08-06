@@ -19,7 +19,7 @@ from datetime import timezone
 from shared import (
     tg, resolve_unlisted_channel, PUBLIC_CHANNELS,
     store_job, notify_matching_subscribers,
-    get_last_message_id, set_last_message_id, log,
+    get_last_message_id, set_last_message_id, purge_old_jobs, log,
 )
 
 CHECK_LIMIT = 100  # safety cap per channel per run, in case of a big backlog
