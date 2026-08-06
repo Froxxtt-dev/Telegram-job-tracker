@@ -60,8 +60,10 @@ async def main():
     unlisted = await resolve_unlisted_channel()
     entities.append((unlisted, getattr(unlisted, "title", "unlisted-channel")))
 
-    for entity, name in entities:
+   for entity, name in entities:
         await poll_channel(entity, name)
+
+    purge_old_jobs()
 
     await tg.disconnect()
     log.info("Check complete.")
