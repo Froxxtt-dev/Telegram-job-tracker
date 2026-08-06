@@ -22,9 +22,9 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("job-radar")
 
 # ---------- Config (all from environment variables) ----------
-API_ID = int(os.environ["TG_API_ID"])
-API_HASH = os.environ["TG_API_HASH"]
-SESSION_STRING = os.environ["TG_SESSION_STRING"]
+API_ID = os.environ.get("TG_API_ID")
+API_HASH = os.environ.get("TG_API_HASH")
+SESSION_STRING = os.environ.get("TG_SESSION_STRING")
 
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_KEY"]
@@ -40,7 +40,10 @@ PUBLIC_CHANNELS = ["careeropportunitiesinghana", "job_linkk"]
 UNLISTED_CHANNEL_LINK = "https://t.me/uWZDpI7x1KZkOGY0"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-tg = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
+
+tg = None
+if API_ID and API_HASH and SESSION_STRING:
+    tg = TelegramClient(StringSession(SESSION_STRING), int(API_ID), API_HASH)
 
 
 # ---------- Groq (free-tier LLM) — job tagging + query expansion ----------
