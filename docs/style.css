@@ -13,10 +13,11 @@
 body {
   margin: 0;
   background: var(--ink);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
+  color: var(--muted-on-ink);
+  font-family: 'IBM Plex Sans', sans-serif;
   min-height: 100vh;
-  position: relative;
   overflow-x: hidden;
 }
 
@@ -182,9 +183,11 @@ main {
 .job-meta .channel { color: var(--amber); }
 
 .job-text {
-  font-size: 0.95rem;
-  line-height: 1.5;
+  font-size: 0.96rem;
+  line-height: 1.55;
   white-space: pre-line;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .job a.job-link {
