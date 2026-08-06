@@ -27,7 +27,7 @@ from datetime import timezone
 from dotenv import load_dotenv
 load_dotenv()
 
-from main import tg, resolve_unlisted_channel, PUBLIC_CHANNELS, store_job
+from shared import tg, resolve_unlisted_channel, PUBLIC_CHANNELS, store_job
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("backfill")
