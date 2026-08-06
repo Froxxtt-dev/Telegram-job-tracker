@@ -7,7 +7,8 @@ backfill.py (the one-time history sweep).
 import os
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+
 
 import requests
 from telethon import TelegramClient
@@ -183,3 +184,24 @@ def get_last_message_id(channel_id: int) -> int:
 
 def set_last_message_id(channel_id: int, message_id: int):
     supabase.table("sync_state").upsert({"channel_id": channel_id, "last_message_id": message_id}).execute()
+
+# ---------- Retention: keep only the last 30 days ----------
+
+RETENTION_DAYS = 30
+
+
+def retention_cutoff_iso() -> str:
+    cutoff = datetime.now(timezone.utc) - timedelta(days=RETENTION_DAYS)
+    return cutoff.isoformat()
+
+
+def purge_old_jobs():
+    """Deletes jobs older than RETENTION_DAYS. Call this periodically
+    (poll.py does, on every scheduled run) so the table doesn't grow
+    forever and old posts drop out of the feed."""
+    cutoff = retention_cutoff_iso()
+    result = supabase.table("jobs").delete().lt("posted_at", cutoff).execute()
+    removed = len(result.data) if result.data else 0
+    if removed:
+        log.info("Purged %d job(s) older than %d days", removed, RETENTION_DAYS)
+    return removed
