@@ -133,8 +133,12 @@ main {
 
 .job {
   position: relative;
-  padding: 18px 0 18px 24px;
-  margin-bottom: 4px;
+  background: var(--paper);
+  color: var(--ink-text);
+  border-radius: 2px;
+  padding: 22px 20px 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.4);
 }
 .job::before {
   content: "";
@@ -148,13 +152,32 @@ main {
   border: 2px solid var(--signal);
 }
 
-.job-meta {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  color: var(--muted);
+.job-head {
   display: flex;
-  gap: 10px;
-  margin-bottom: 6px;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: #5A4E38;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.job-head .wire-no { color: #8B4A16; font-weight: 600; }
+.job-head .new-tag {
+  background: var(--brass);
+  color: #201803;
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.job-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.74rem;
+  color: #55462E;
+  margin-bottom: 8px;
 }
 .job-meta .channel { color: var(--amber); }
 
@@ -195,4 +218,10 @@ footer {
 @media (max-width: 480px) {
   .controls { flex-direction: column; }
   #notify-btn { padding: 12px; }
+  h1 { font-size: 2rem; }
+  main { padding: 8px 16px 40px; }
+  .masthead { padding: 32px 16px 16px; }
+  .job { padding: 20px 16px 14px; margin-bottom: 16px; }
+  .job-text { font-size: 1rem; line-height: 1.5; }
+  .job-head { font-size: 0.68rem; }
 }
