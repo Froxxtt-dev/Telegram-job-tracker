@@ -32,15 +32,17 @@ function renderJobs(jobs) {
 
     const li = document.createElement("li");
     li.className = "job";
-    li.innerHTML = `
+li.innerHTML = `
       <div class="job-head">
         <span class="wire-no">NO. ${dispatchNo}</span>
         <span>${timeAgo(job.posted_at)}${isNew ? '<span class="new-tag">NEW</span>' : ""}</span>
       </div>
       <div class="job-meta">SOURCE: ${job.channel}</div>
+      ${job.title ? '<div class="job-title"></div>' : ""}
       <div class="job-text"></div>
       ${job.link ? `<a class="job-link" href="${job.link}" target="_blank" rel="noopener">OPEN IN TELEGRAM &rarr;</a>` : ""}
     `;
+    if (job.title) li.querySelector(".job-title").textContent = job.title;
     li.querySelector(".job-text").textContent = job.text; // safe text insert
     feedEl.appendChild(li);
   });
