@@ -5,7 +5,8 @@ Runs ONE short check: connects, asks each channel "anything new since the
 last message I saw?", stores + tags any new posts with Groq, sends push
 notifications, then disconnects. Meant to run on a schedule (every ~10
 minutes via GitHub Actions — see .github/workflows/poll.yml) rather than
-staying connected 24/7.
+staying connected 24/7, which sidesteps free-tier hosts putting a
+long-lived connection to sleep.
 
 Local run:
     pip install -r requirements.txt python-dotenv
@@ -14,6 +15,7 @@ Local run:
 """
 
 import asyncio
+import logging
 from datetime import timezone
 
 from shared import (
@@ -60,7 +62,7 @@ async def main():
     unlisted = await resolve_unlisted_channel()
     entities.append((unlisted, getattr(unlisted, "title", "unlisted-channel")))
 
-   for entity, name in entities:
+    for entity, name in entities:
         await poll_channel(entity, name)
 
     purge_old_jobs()
