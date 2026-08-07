@@ -148,12 +148,18 @@ async def resolve_unlisted_channel():
 # ---------- Storage ----------
 
 def store_job(channel_name: str, text: str, posted_at: datetime, link: str | None, tg_key: str | None = None):
+    classification = classify_job(text)
+    if not classification["is_job"]:
+        log.info("Skipped non-job post (%s)", tg_key)
+        return None
+
     row = {
         "channel": channel_name,
         "text": text,
         "posted_at": posted_at.isoformat(),
         "link": link,
-        "tags": tag_job(text),
+        "title": classification["title"],
+        "tags": classification["tags"],
         "tg_key": tg_key,
     }
     try:
