@@ -74,15 +74,27 @@ def _groq_json(prompt: str) -> dict:
         return {}
 
 
-def tag_job(text: str) -> list[str]:
+def classify_job(text: str) -> dict:
+    """Reads a Telegram post and decides whether it's a genuine job/vacancy
+    listing at all (filtering out ads, chatter, and off-topic posts), and
+    if so, generates a clean short job title plus category tags."""
     result = _groq_json(
-        "Read this job posting and return JSON like "
-        '{"tags": ["role or field keywords, 3-6 short lowercase terms"]}. '
-        "Include the job title, its general field, and seniority if stated.\n\n"
-        f"POSTING:\n{text[:1500]}"
+        "You are filtering a feed of Telegram messages down to genuine "
+        "job/vacancy/internship postings only. Read the message and return "
+        'JSON like {"is_job": true or false, "title": "a short clean job '
+        'title such as \'Sales Associate\' or \'Accountant\', or null if not '
+        'a job posting", "tags": ["3-6 short lowercase role/field keywords"]}. '
+        "Set is_job to false for anything that isn't an actual job/vacancy/"
+        "internship posting — e.g. general chatter, ads for products or "
+        "CV-writing services, investment pitches, unrelated announcements. "
+        "If genuinely unsure, prefer true so a real posting doesn't get lost.\n\n"
+        f"MESSAGE:\n{text[:1500]}"
     )
+    is_job = bool(result.get("is_job", True))  # Groq unavailable -> default to keeping the post
+    title = result.get("title") or None
     tags = result.get("tags", [])
-    return [t.lower() for t in tags if isinstance(t, str)]
+    tags = [t.lower() for t in tags if isinstance(t, str)]
+    return {"is_job": is_job, "title": title, "tags": tags}
 
 
 def expand_query(query: str) -> list[str]:
