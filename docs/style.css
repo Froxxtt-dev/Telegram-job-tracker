@@ -181,11 +181,12 @@ main {
   margin-left: 8px;
 }
 
-.job-meta {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.74rem;
-  color: #55462E;
-  margin-bottom: 8px;
+.job-title {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 600;
+  font-size: 1.08rem;
+  color: var(--ink-text);
+  margin-bottom: 6px;
   overflow-wrap: anywhere;
 }
 
