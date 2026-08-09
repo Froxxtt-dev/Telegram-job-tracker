@@ -36,7 +36,7 @@ VAPID_CLAIMS_EMAIL = os.environ.get("VAPID_CLAIMS_EMAIL", "mailto:you@example.co
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")  # optional — search/tagging degrade to plain-text if unset
 GROQ_MODEL = "llama-3.3-70b-versatile"
 
-PUBLIC_CHANNELS = ["careeropportunitiesinghana", "job_linkk"]
+PUBLIC_CHANNELS = ["careeropportunitiesinghana", "job_linkk", "joblyghana", "jobs_in_ghana", "ghjobbank", "BrainyCareerConnection"]
 UNLISTED_CHANNEL_LINK = "https://t.me/uWZDpI7x1KZkOGY0"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
