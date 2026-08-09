@@ -76,21 +76,26 @@ def _groq_json(prompt: str) -> dict:
 
 def classify_job(text: str) -> dict:
     """Reads a Telegram post and decides whether it's a genuine job/vacancy
-    listing at all (filtering out ads, chatter, and off-topic posts), and
-    if so, generates a clean short job title plus category tags."""
+    listing at all (filtering out ads, chatter, motivational/inspirational
+    posts, and off-topic posts), and if so, generates a clean short job
+    title plus category tags."""
     result = _groq_json(
         "You are filtering a feed of Telegram messages down to genuine "
         "job/vacancy/internship postings only. Read the message and return "
         'JSON like {"is_job": true or false, "title": "a short clean job '
         'title such as \'Sales Associate\' or \'Accountant\', or null if not '
         'a job posting", "tags": ["3-6 short lowercase role/field keywords"]}. '
-        "Set is_job to false for anything that isn't an actual job/vacancy/"
-        "internship posting — e.g. general chatter, ads for products or "
-        "CV-writing services, investment pitches, unrelated announcements. "
-        "If genuinely unsure, prefer true so a real posting doesn't get lost.\n\n"
+        "A genuine job posting names a specific role/position and typically "
+        "includes at least one of: qualifications, how to apply, location, "
+        "salary, or contact details. Set is_job to false for anything else — "
+        "e.g. general chatter, motivational or inspirational messages (even "
+        "from career-focused channels), ads for products or CV-writing "
+        "services, investment pitches, or unrelated announcements. Do not "
+        "default to true when unsure — only mark is_job true if the message "
+        "clearly describes an actual role someone could apply for.\n\n"
         f"MESSAGE:\n{text[:1500]}"
     )
-    is_job = bool(result.get("is_job", True))  # Groq unavailable -> default to keeping the post
+    is_job = bool(result.get("is_job", False))  # strict default: exclude if Groq call fails or is unclear
     title = result.get("title") or None
     tags = result.get("tags", [])
     tags = [t.lower() for t in tags if isinstance(t, str)]
